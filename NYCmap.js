@@ -46,6 +46,16 @@ var parentSVG= d3.select("body")
         ColorScheme(NYdatum,svg,select_colors,select);
         ColorScheme(Cdatum,svg2,select_colors,select);
     });
+
+//an SVG to append LA County
+var la_county_svg = d3.select("body")
+    .attr("align", "center")
+    .append("svg")
+    .attr("id","la_county_svg")
+    .attr("align","center")
+    .attr("width", width*2)
+    .attr("height", height)
+
 //an SVG for New York
 var svg = d3.select("#parentSVG")
     .append("svg")
@@ -390,7 +400,7 @@ d3.json("ChicagoData.json", function(error, json) {
 });
 
 //SVG for LA County
-var svg3 = d3.select('#parentSVG')
+var svg3 = d3.select('#la_county_svg')
              .append("svg")
              .attr("align","center")
              .attr("x",width)
@@ -406,13 +416,19 @@ d3.json("LA_CountyZipCodeMap.geojson", function(error,json){
      //location of geometries/properties
     var features = json.features;
     
-    console.log(features);
+    console.log(json);
     var projection = d3.geo.mercator()
-  					.center([34.130273, -118.255455])
-                    .scale(80000);
+  					.center([34.0000, -118.300])
+                    .scale(8000);
     
     var path = d3.geo.path().projection(projection);
     
+    //color the Areas
+    console.log(svg3);
+    svg3.data(json)
+        .enter().append("path")
+        .attr("class", "LAfeatures")
+        .attr("d", path)
     
 });
 
@@ -523,7 +539,7 @@ function Highlight(NYdata,CData,NYmap,Cmap,color,property,setVals,bool){
     setVals[0]=format.from(setVals[0]);
     setVals[1]=format.from(setVals[1]);
     } else;
-    console.log(setVals);
+    
      NYmap.selectAll("path")
     .data(NYdata.features)
     .transition().duration(1000)
