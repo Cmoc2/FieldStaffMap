@@ -34,12 +34,6 @@ em{
     fill: rgba(128, 128, 128, 0.86);
 }
 
-.LAfeatures{
-    fill: #B3DDF2;
-    stroke: #777;
-    stroke-linejoin: round;
-    stroke-width: 1.5;
-}
 div.tooltip {	
     position: absolute;			
     text-align: left;			

@@ -46,16 +46,6 @@ var parentSVG= d3.select("body")
         ColorScheme(NYdatum,svg,select_colors,select);
         ColorScheme(Cdatum,svg2,select_colors,select);
     });
-
-//an SVG to append LA County
-var la_county_svg = d3.select("body")
-    .attr("align", "center")
-    .append("svg")
-    .attr("id","la_county_svg")
-    .attr("align","center")
-    .attr("width", width*2)
-    .attr("height", height)
-
 //an SVG for New York
 var svg = d3.select("#parentSVG")
     .append("svg")
@@ -84,7 +74,7 @@ d3.json("NYData.json", function(error, json) {
     if (error) return console.error(error);
     
     var features = topojson.feature(json,json.objects.features);
-    
+
     //copy to global variable
     NYdatum = features;
     
@@ -297,7 +287,7 @@ d3.json("ChicagoData.json", function(error, json) {
     
      //location of geometries/properties
     var features = topojson.feature(json,json.objects.features);
-    console.log(features);
+    
     //copy features to global
     Cdatum = features;
 
@@ -400,11 +390,12 @@ d3.json("ChicagoData.json", function(error, json) {
 });
 
 //SVG for LA County
-var svg3 = d3.select('#la_county_svg')
+var svg3 = d3.select('body')
              .append("svg")
              .attr("align","center")
+             .attr("id", "la_svg")
              .attr("x",width)
-             .attr("width", width)
+             .attr("width", width+200)
              .attr("height", height);
 
 //LA County Map
@@ -416,20 +407,56 @@ d3.json("LA_CountyZipCodeMap.geojson", function(error,json){
      //location of geometries/properties
     var features = json.features;
     
-    console.log(json);
-    var projection = d3.geo.mercator()
-  					.center([34.0000, -118.300])
-                    .scale(8000);
+    /*804 Different Zip Codes
+    //Output Each different Zip Code and keep a count.
+    var count = 0;
+    json.features.forEach(function(d){
+        console.log(d.properties.name);
+        count++;
+    });
+    */
+    
+    var projection = d3.geoConicConformal()
+                    .parallels([34 + 2 / 60, 35 + 28 / 60])
+                    .rotate([118, -35])
+                    .scale(25000);
     
     var path = d3.geo.path().projection(projection);
     
-    //color the Areas
-    console.log(svg3);
-    svg3.data(json)
-        .enter().append("path")
-        .attr("class", "LAfeatures")
-        .attr("d", path)
+    var m0, o0;
     
+    svg3.selectAll(".features")
+        .data(json.features)
+        .enter().append("path")
+        .attr("class", "NYfeatures")
+        .attr("d", path)
+        .on("mouseover", function(d){
+            //fit the tooltip to the information shown
+            tooltip.style("height","100px").style("width","225px");
+            tooltip.transition()
+            .duration(200)
+            .style("opacity", .9);
+            
+            //change the details inside the tooltip
+            tooltip.style("height","15px").style("width","115px");
+            tooltip.html("Zip Code: " + d.properties.name);
+            return tooltip.style("display","inline");
+        })
+        .on("mousemove", function(d){
+            return tooltip.style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px");
+        })
+        .on("mouseout", function(d){
+            tooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
+        })
+        .on("click", function(d){
+            console.log(d);
+        })
+        .on("mousedown", function(d){
+            console.log(d);
+        });
+
 });
 
 //Draw the buttons & set slider div
@@ -539,7 +566,7 @@ function Highlight(NYdata,CData,NYmap,Cmap,color,property,setVals,bool){
     setVals[0]=format.from(setVals[0]);
     setVals[1]=format.from(setVals[1]);
     } else;
-    
+    console.log(setVals);
      NYmap.selectAll("path")
     .data(NYdata.features)
     .transition().duration(1000)
